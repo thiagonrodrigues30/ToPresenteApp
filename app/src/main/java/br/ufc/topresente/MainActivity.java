@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -12,19 +13,26 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private PresencaDAO presencaDAO;
+    int num = 0;
+    TextView tvList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.presencaDAO = new PresencaDAO(this);
+
+        this.tvList = (TextView) findViewById(R.id.textview_pendentes);
+        mostrarAulasPendentes();
     }
 
     private void salvarPresenca(String codAula){
-
 
         // TODO Mudar pro id salvo na sharedPreferencesx
         Integer idUsuario = 1;
@@ -33,6 +41,25 @@ public class MainActivity extends AppCompatActivity {
 
         Presenca p = new Presenca(idUsuario, codAula, date);
 
+        if(presencaDAO.retrieve(codAula) != null)
+        {
+            Toast.makeText(this, "Aula já inserida", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            long res = presencaDAO.create(p);
+
+            if(res == -1)
+            {
+                Toast.makeText(this, "Não foi possivel salvar a presença", Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                Toast.makeText(this, "Presença salva com sucesso", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        mostrarAulasPendentes();
     }
 
     public String getAtualDateString(){
@@ -53,7 +80,55 @@ public class MainActivity extends AppCompatActivity {
         integrator.initiateScan();
         */
 
-        salvarPresenca("abcd1234");
+        // TODO deletar depois
+        String[] aulas = new String[5];
+        aulas[0] = "abcd1234";
+        aulas[1] = "aaa111";
+        aulas[2] = "bbb222";
+        aulas[3] = "ccc444";
+        aulas[4] = "ddd555";
+        salvarPresenca(aulas[this.num]);
+        if(this.num < 4)
+        {
+            this.num++;
+        }
+    }
+
+    private void mostrarAulasPendentes(){
+        StringBuffer listText = new StringBuffer();
+
+        List<Presenca> list = presencaDAO.listOffline();
+
+        listText.append("( ");
+
+        if(list == null)
+        {
+            listText.append("0");
+        }
+        else
+        {
+            listText.append(list.size());
+        }
+
+        listText.append(" )");
+
+        this.tvList.setText(listText.toString());
+    }
+
+    public void onClickSalvarServidor(View v){
+        List<Presenca> list = presencaDAO.listOffline();
+
+        if(list == null)
+        {
+            Toast.makeText(this, "Nenhuma Presença Pendente", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            // TODO Subir presenças para o servidor
+            presencaDAO.updateOnline();
+            mostrarAulasPendentes();
+            Toast.makeText(this, "Todas Presenças Foram Salvas no Servidor", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -62,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
         if(result != null) {
             if(result.getContents() == null) {
                 Log.d("MainActivity", "Cancelled scan");
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Cancelado", Toast.LENGTH_LONG).show();
             } else {
                 String codAula = result.getContents();
                 Log.d("MainActivity", "Scanned");
-                Toast.makeText(this, "Scanned: " + codAula, Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Scanned: " + codAula, Toast.LENGTH_LONG).show();
                 salvarPresenca(codAula);
             }
         } else {

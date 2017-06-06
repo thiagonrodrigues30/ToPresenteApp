@@ -18,7 +18,7 @@ public class PresencaDAO extends SQLiteOpenHelper {
 
 
     public static final String DATABASE_NAME = "ToPresente.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 3;
 
 
     public PresencaDAO(Context context) {
@@ -47,7 +47,7 @@ public class PresencaDAO extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void create(Presenca presenca) {
+    public long create(Presenca presenca) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
@@ -58,30 +58,29 @@ public class PresencaDAO extends SQLiteOpenHelper {
 
         long id = db.insert("presencas", null, contentValues);
         Log.v("SQLite", "create id = " + id);
+        close();
+
+        return id;
     }
 
-    /*
-    public Presenca retrieve(Integer id) {
+
+    public Presenca retrieve(String codAula) {
         String[] fieldValues = new String[1];
-        fieldValues[0] = Integer.toString(id);
+        fieldValues[0] = codAula;
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor result = db.rawQuery("select * from notes where id = ?", fieldValues);
-        Note note = null;
+        Cursor result = db.rawQuery("select * from presencas where codaula = ?", fieldValues);
+        Presenca presenca = null;
         if (result != null && result.getCount() > 0) {
-            note = new Note();
-            note.setId(result.getInt(0));
-            note.setTitle(result.getString(1));
-            note.setContent(result.getString(2));
-
-            GregorianCalendar gc = new GregorianCalendar();
-            gc.setTimeInMillis(result.getLong(3));
-
-            note.setDate(gc);
+            result.moveToFirst();
+            presenca = new Presenca();
+            presenca.setIdUsuario(result.getInt(1));
+            presenca.setCodAula(result.getString(2));
+            presenca.setHora(result.getString(3));
         }
-        return note;
+        return presenca;
     }
-    */
+
 
     public void updateOnline() {
         SQLiteDatabase db = this.getWritableDatabase();
