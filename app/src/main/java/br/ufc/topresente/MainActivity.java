@@ -10,15 +10,12 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    //private GregorianCalendar date;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,43 +24,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void salvarPresenca(String codAula){
-        Presenca p = new Presenca();
+
 
         // TODO Mudar pro id salvo na sharedPreferencesx
         Integer idUsuario = 1;
         String date = getAtualDateString();
-        //String date = "2017-05-18";
         Log.d("MainActivity", date);
 
-        p.setCodAula(codAula);
+        Presenca p = new Presenca(idUsuario, codAula, date);
 
     }
 
     public String getAtualDateString(){
-        //String formData = date.get(Calendar.DAY_OF_MONTH) + "/" + date.get(Calendar.MONTH) + "/" + date.get(Calendar.YEAR);
         GregorianCalendar date = new GregorianCalendar();
         String formData = date.get(Calendar.YEAR) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.DAY_OF_MONTH)
                 + " " + date.get(Calendar.HOUR_OF_DAY) + ":" + date.get(Calendar.MINUTE) + ":" + date.get(Calendar.SECOND);
         return formData;
-
-
-        /*
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date date = null;
-        try {
-            date = sdf.parse("2015-01-24 17:39:50.000");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        //System.out.println(date.getTime());
-        return Long.toString(date.getTime());
-        */
-
-        //Date date = new Date();
     }
 
     public void onClickLerQrCode(View v){
-        /*
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
         integrator.setPrompt("Scan");
@@ -71,11 +50,6 @@ public class MainActivity extends AppCompatActivity {
         integrator.setBeepEnabled(false);
         integrator.setBarcodeImageEnabled(false);
         integrator.initiateScan();
-        */
-
-        String d = getAtualDateString();
-        Log.d("Date", d);
-
     }
 
     @Override
