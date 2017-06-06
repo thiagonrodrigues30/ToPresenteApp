@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickLerQrCode(View v){
+        /*
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
         integrator.setPrompt("Scan");
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
         integrator.setBeepEnabled(false);
         integrator.setBarcodeImageEnabled(false);
         integrator.initiateScan();
+        */
+
+        salvarPresenca("abcd1234");
     }
 
     @Override
