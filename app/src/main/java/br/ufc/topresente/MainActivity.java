@@ -15,6 +15,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import br.ufc.topresente.server.GetLoginServer;
+
 public class MainActivity extends AppCompatActivity {
 
     private PresencaDAO presencaDAO;
@@ -116,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickSalvarServidor(View v){
+        new GetLoginServer().execute("thiago@thiago", "123456");
+
         List<Presenca> list = presencaDAO.listOffline();
 
         if(list == null)
