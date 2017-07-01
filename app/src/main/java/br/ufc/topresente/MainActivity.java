@@ -1,6 +1,8 @@
 package br.ufc.topresente;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,17 +13,23 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import br.ufc.topresente.server.GetLoginServer;
+import br.ufc.topresente.server.PostPresencaServer;
 
 public class MainActivity extends AppCompatActivity {
 
     private PresencaDAO presencaDAO;
     int num = 0;
     TextView tvList;
+
+    Integer userId;
+    String userName;
+    String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +40,14 @@ public class MainActivity extends AppCompatActivity {
 
         this.tvList = (TextView) findViewById(R.id.textview_pendentes);
         mostrarAulasPendentes();
+
+        setarDadosUsuario();
     }
 
     private void salvarPresenca(String codAula){
 
-        // TODO Mudar pro id salvo na sharedPreferencesx
-        Integer idUsuario = 1;
+
+        Integer idUsuario = this.userId;
         String date = getAtualDateString();
         Log.d("MainActivity", date);
 
@@ -65,10 +75,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getAtualDateString(){
+        /*
         GregorianCalendar date = new GregorianCalendar();
         String formData = date.get(Calendar.YEAR) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.DAY_OF_MONTH)
                 + " " + date.get(Calendar.HOUR_OF_DAY) + ":" + date.get(Calendar.MINUTE) + ":" + date.get(Calendar.SECOND);
-        return formData;
+        */
+
+
+        Calendar cal = Calendar.getInstance();
+        //cal.add(Calendar.DATE, 1);
+        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //System.out.println(cal.getTime());
+        // Output "Wed Sep 26 14:23:28 EST 2012"
+
+        String formatted = format1.format(cal.getTime());
+        //System.out.println(formatted);
+        // Output "2012-09-26"
+
+        //System.out.println(format1.parse(formatted));
+        // Output "Wed Sep 26 00:00:00 EST 2012"
+
+
+        return formatted;
     }
 
     public void onClickLerQrCode(View v){
@@ -84,11 +112,11 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO deletar depois
         String[] aulas = new String[5];
-        aulas[0] = "abcd1234";
-        aulas[1] = "aaa111";
-        aulas[2] = "bbb222";
-        aulas[3] = "ccc444";
-        aulas[4] = "ddd555";
+        aulas[0] = "abc123";
+        aulas[1] = "abc456";
+        aulas[2] = "abc789";
+        aulas[3] = "abc321";
+        aulas[4] = "abc654";
         salvarPresenca(aulas[this.num]);
         if(this.num < 4)
         {
@@ -118,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickSalvarServidor(View v){
-        new GetLoginServer().execute("thiago@thiago", "123456");
 
         List<Presenca> list = presencaDAO.listOffline();
 
@@ -128,10 +155,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            // TODO Subir presenças para o servidor
-            presencaDAO.updateOnline();
-            mostrarAulasPendentes();
-            Toast.makeText(this, "Todas Presenças Foram Salvas no Servidor", Toast.LENGTH_LONG).show();
+            new PostPresencaServer(this).execute();
         }
     }
 
@@ -152,5 +176,26 @@ public class MainActivity extends AppCompatActivity {
             // This is important, otherwise the result will not be passed to the fragment
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    public void resultPostPresencas(int op){
+        if(op == 1)
+        {
+            presencaDAO.updateOnline();
+            mostrarAulasPendentes();
+            Toast.makeText(this, "Todas Presenças Foram Salvas no Servidor", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            // TODO mudar mensagem para erros vindos do servidor
+            Toast.makeText(this, "Não foi possivel salvar as presenças no servidor, tente novamente mais tarde", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void setarDadosUsuario(){
+        SharedPreferences sharedPreferences = getSharedPreferences(Statics.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        this.userId = sharedPreferences.getInt("USER_ID", 0);
+        this.userName = sharedPreferences.getString("USER_NAME", "");
+        this.userEmail = sharedPreferences.getString("USER_EMAIL", "");
     }
 }

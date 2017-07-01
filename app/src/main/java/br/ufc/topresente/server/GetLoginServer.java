@@ -1,5 +1,7 @@
 package br.ufc.topresente.server;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -9,12 +11,20 @@ import org.json.JSONObject;
 
 import java.util.Vector;
 
+import br.ufc.topresente.LoginActivity;
 import br.ufc.topresente.Statics;
 
 /**
  * Created by Thiago on 19/06/2017.
  */
 public class GetLoginServer extends AsyncTask<String, Void, Void> {
+
+    Context context;
+    int status;
+
+    public GetLoginServer(Context context){
+        this.context = context;
+    }
 
     @Override
     protected Void doInBackground(String... params) {
@@ -36,29 +46,48 @@ public class GetLoginServer extends AsyncTask<String, Void, Void> {
 
         Log.d("Response: ", "Servidor Login: " + jsonStr);
 
-        // Monta a lista de postos
-        /*
-        Vector<Comentario> listaComentarios = parseJsonComentarios(jsonStr);
-        for(int i = 0; i<listaComentarios.size(); i++)
-        {
-            Comentario c = listaComentarios.get(i);
-            Log.d("Response" , "Comentario to String: " + c.toString());
-        }
+        // Transforma a string JSON em objeto e salva no shared preferences
+        parseJson(jsonStr);
 
-        if(listaComentarios == null)
-        {
-            Log.d("Response", "Lista postos = null");
-            return null;
-        }
-        else
-        {
-            //TODO Insiro no SQLite
-            //comentarioBD.preencherBanco(listaComentarios);
-            return null;
-        }
-        */
 
         return null;
+    }
+
+    public void parseJson(String json){
+        try {
+            JSONObject jsonObj = new JSONObject(json);
+
+            if(jsonObj.getInt("status") == 1)
+            {
+                this.status = 1;
+
+                // Extrai o array results do objeto JSON
+                JSONArray results = jsonObj.getJSONArray("results");
+                JSONObject userJson = results.getJSONObject(0);
+
+                Integer userId = userJson.getInt("user_id");
+                String userName = userJson.getString("user_name");
+                String userEmail = userJson.getString("user_email");
+
+                salvarUsuario(userId,userName,userEmail);
+            }
+            else
+            {
+                this.status = 0;
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void salvarUsuario(Integer userId, String userName, String userEmail){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Statics.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("USER_ID", userId);
+        editor.putString("USER_NAME", userName);
+        editor.putString("USER_EMAIL", userEmail);
+        editor.commit();
     }
 
     public String createJsonParam(String login, String senha) {
@@ -66,7 +95,7 @@ public class GetLoginServer extends AsyncTask<String, Void, Void> {
 
         try {
 
-            json.put("login" , login);
+            json.put("email" , login);
             json.put("senha" , senha);
 
         } catch (JSONException e) {
@@ -75,55 +104,10 @@ public class GetLoginServer extends AsyncTask<String, Void, Void> {
         return json.toString();
     }
 
-    // Metodo responsavel por quebrar o JSON em Comentarios
-    /*
-    private Vector<Comentario> parseJsonComentarios(String json){
-        if (json != null)
-        {
-            try {
+    protected void onPostExecute(Void result) {
 
-                Vector<Comentario> listarComentarios = new Vector<>();
-
-                // Transforma a string JSON em objeto
-                JSONObject jsonObj = new JSONObject(json);
-
-                if(jsonObj.getInt("status") == 1)
-                {
-
-                    // Extrai o array results do objeto JSON
-                    JSONArray comentariosJson = jsonObj.getJSONArray("results");
-
-                    // Percorrendo todas os Postos
-                    for (int i = 0; i < comentariosJson.length(); i++) {
-                        // Extrai o i-esimo objeto
-                        JSONObject pJson = comentariosJson.getJSONObject(i);
-
-                        // Extrai as informações do objeto
-                        int comentario_id = pJson.getInt("comentario_id");
-                        int posto_id = pJson.getInt("posto_id");
-                        String nome = pJson.getString("nome");
-                        String titulo = pJson.getString("titulo");
-                        String corpo = pJson.getString("corpo");
-                        String horario = pJson.getString("horario");
-
-
-                        // Adiciona o Posto obtido na lista de postos
-                        listarComentarios.add(new Comentario(comentario_id, nome, titulo, corpo, horario, posto_id));
-                    }
-
-                }
-
-                return listarComentarios;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return null;
-            }
-        } else {
-            Log.e("ServiceHandler", "No data received from HTTP request");
-            return null;
-        }
-
+        ((LoginActivity)context).resultLogin(this.status);
     }
-    */
+
 
 }

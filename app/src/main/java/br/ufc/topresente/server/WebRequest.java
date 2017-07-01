@@ -9,6 +9,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -19,40 +20,31 @@ import java.net.URLEncoder;
  */
 public class WebRequest {
 
-    /*
-    public static String httpPost(String link, String json){
 
-        json = "";
 
-        try {
-            //String link = (String) params[0];
+    public static String httpPost(String link, String json) {
+
+        try{
+            String charset = "UTF-8";
             URL url = new URL(link);
 
             // perform connection and read content
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            //conn.setDoInput(true);
-            //conn.connect();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true); // Triggers POST.
+            connection.setRequestProperty("Accept-Charset", charset);
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=" + charset);
 
-            /*
-            String data = URLEncoder.encode("Json", "UTF-8") + "="
-                    + URLEncoder.encode(json.toString(), "UTF-8");
-            */
-            /*
+            //name=value do POST
+            String query = "presencaJson=" + json;
 
-            wr.write(json.toString());
-            wr.flush();
+            //try
+            OutputStream output = connection.getOutputStream();
+            output.write(query.getBytes(charset));
 
-            Log.d("post response code", conn.getResponseCode() + " ");
 
-            int responseCode = conn.getResponseCode();
-
-            InputStream is = conn.getInputStream();
+            InputStream is = connection.getInputStream();
             BufferedReader reader;
             reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             String data = null;
@@ -61,13 +53,18 @@ public class WebRequest {
                 content += data + "\n";
             }
 
+
+
+            connection.disconnect();
             return content;
+
         } catch (Exception e) {
+            e.printStackTrace();
             return new String("Exception: " + e.getMessage());
         }
 
     }
-    */
+
 
     public static String httpGet(String link){
         try {
@@ -76,11 +73,28 @@ public class WebRequest {
 
             // perform connection and read content
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000);
-            conn.setConnectTimeout(15000);
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+            conn.setReadTimeout(100000);
+            conn.setConnectTimeout(150000);
+
             conn.setDoInput(true);
             conn.connect();
+
+            //Log.d("Servidor response code", String.valueOf(conn.getResponseCode()));
+            // Get the response code
+            /*
+            int statusCode = conn.getResponseCode();
+            InputStream is = null;
+
+            if (statusCode >= 200 && statusCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = conn.getInputStream();
+            }
+            else {
+                is = conn.getErrorStream();
+            }
+            */
 
             InputStream is = conn.getInputStream();
             BufferedReader reader;
@@ -91,8 +105,12 @@ public class WebRequest {
                 content += data + "\n";
             }
 
+
+
+            conn.disconnect();
             return content;
         } catch (Exception e) {
+            e.printStackTrace();
             return new String("Exception: " + e.getMessage());
         }
     }
