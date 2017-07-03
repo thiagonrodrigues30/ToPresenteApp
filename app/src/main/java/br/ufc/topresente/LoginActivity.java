@@ -22,6 +22,8 @@ public class LoginActivity extends AppCompatActivity {
         Typeface face = Typeface.createFromAsset(getAssets(),
                 "fonts/Pacifico-Regular.ttf");
         tv.setTypeface(face);
+
+       // goToMainActivity();
     }
 
     public void onClickLogar(View v){
@@ -32,23 +34,6 @@ public class LoginActivity extends AppCompatActivity {
 
         new GetLoginServer(this).execute(login, senha);
 
-
-
-        /*
-        if (login.equals("pedro") && senha.equals("123")) {
-            alert("Login realizado com sucesso!");
-        } else {
-            alert("Login ou Senha incorretos!");
-        }
-        */
-
-        /*
-        Intent intent = new Intent();
-        intent.setAction("br.ufc.topresente.MAINLOGED");
-        intent.setComponent(null);
-
-        startActivity(intent);
-        */
     }
 
     public void goToMainActivity(){
@@ -75,15 +60,4 @@ public class LoginActivity extends AppCompatActivity {
         Toast.makeText(this, s, Toast.LENGTH_LONG).show();
     }
 
-    /*
-    private void chamarLogedActivity(String userName){
-        Intent intent = new Intent();
-        intent.setAction("br.ufc.dc.dspm.action.LOGINTWEETER");
-        intent.setComponent(null);
-        intent.addCategory("br.ufc.dc.dspm.category.CATEGORIA");
-        intent.putExtra("USER", userName);
-
-        startActivity(intent);
-    }
-    */
 }

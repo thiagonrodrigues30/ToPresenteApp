@@ -75,32 +75,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String getAtualDateString(){
-        /*
-        GregorianCalendar date = new GregorianCalendar();
-        String formData = date.get(Calendar.YEAR) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.DAY_OF_MONTH)
-                + " " + date.get(Calendar.HOUR_OF_DAY) + ":" + date.get(Calendar.MINUTE) + ":" + date.get(Calendar.SECOND);
-        */
 
 
         Calendar cal = Calendar.getInstance();
-        //cal.add(Calendar.DATE, 1);
+
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //System.out.println(cal.getTime());
         // Output "Wed Sep 26 14:23:28 EST 2012"
 
         String formatted = format1.format(cal.getTime());
-        //System.out.println(formatted);
         // Output "2012-09-26"
-
-        //System.out.println(format1.parse(formatted));
-        // Output "Wed Sep 26 00:00:00 EST 2012"
 
 
         return formatted;
     }
 
     public void onClickLerQrCode(View v){
-        /*
+
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
         integrator.setPrompt("Scan");
@@ -108,20 +98,7 @@ public class MainActivity extends AppCompatActivity {
         integrator.setBeepEnabled(false);
         integrator.setBarcodeImageEnabled(false);
         integrator.initiateScan();
-        */
 
-        // TODO deletar depois
-        String[] aulas = new String[5];
-        aulas[0] = "abc123";
-        aulas[1] = "abc456";
-        aulas[2] = "abc789";
-        aulas[3] = "abc321";
-        aulas[4] = "abc654";
-        salvarPresenca(aulas[this.num]);
-        if(this.num < 4)
-        {
-            this.num++;
-        }
     }
 
     private void mostrarAulasPendentes(){
